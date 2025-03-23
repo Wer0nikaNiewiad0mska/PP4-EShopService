@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Xunit;
+using EShop.Domain.Exceptions;
 
 namespace EShop.Application.Tests;
 
@@ -7,25 +8,25 @@ public class CreditCardServiceTest
 {
 
     [Fact]
-    public void ValidateCard_NumberTooShort_ReturnsFalse()
+    public void ValidateCard_NumberTooShort_ThrowsWithExpectedMessage()
     {
         var service = new CreditCardService();
         string cardNumber = "123456789012";
 
-        bool isValid = service.ValidateLength(cardNumber);
+        var exception = Assert.Throws<CardNumberTooShortException>(() => service.ValidateLength(cardNumber));
 
-        Assert.False(isValid);
+        Assert.Equal("Card number is too short.", exception.Message);
     }
 
     [Fact]
-    public void ValidateCard_NumberTooLong_ReturnsFalse()
+    public void ValidateCard_NumberTooLong_ThrowsWithExpectedMessage()
     {
         var service = new CreditCardService();
         string cardNumber = "12345678901234567890";
 
-        bool isValid = service.ValidateLength(cardNumber);
+        var exception = Assert.Throws<CardNumberTooLongException>(() => service.ValidateLength(cardNumber));
 
-        Assert.False(isValid);
+        Assert.Equal("Card number is too long.", exception.Message);
     }
     [Fact]
     public void CreditCardService_Perfect_ReturnsTrue()
@@ -39,31 +40,51 @@ public class CreditCardServiceTest
     }
 
     [Theory]
-    [InlineData("4024007165401778", true)]
-    [InlineData("4024 0071 6540 1778", true)]
-    [InlineData("4024-0071-6540-1778", true)]
-    [InlineData("4024%0071%6540%1778", false)]
-    public void ValidateCard_AllowsDifferentFormatting(string cardNumber, bool expected)
+    [InlineData("4024007165401778")]
+    [InlineData("4024 0071 6540 1778")]
+    [InlineData("4024-0071-6540-1778")]
+    public void ValidateCard_AllowsDifferentFormatting_ReturnsTrue(string cardNumber)
     {
         var service = new CreditCardService();
 
-        bool isValid = service.ValidateLength(cardNumber);
+        bool result = service.ValidateLength(cardNumber);
 
-        Assert.Equal(expected, isValid);
+        Assert.True(result);
     }
 
     [Theory]
-    [InlineData("4111 1111 1111 1112", false)]
-    [InlineData("4111-1111-1111-1110", false)]
-    [InlineData("4111111111111112", false)]
-    [InlineData("4111 1111 1111 1111", true)]
-    public void ValidateCard_ReturnsExpectedResult(string cardNumber, bool expected)
+    [InlineData("4024%0071%6540%1778")]
+    public void ValidateCard_AllowsDifferentFormatting_ThrowsWithExpectedMessage(string cardNumber)
+    {
+        var service = new CreditCardService();
+
+        var exception = Assert.Throws<CardNumberInvalidException>(() => service.ValidateLength(cardNumber));
+
+        Assert.Equal("Card number is invalid.", exception.Message);
+    }
+
+    [Theory]
+    [InlineData("4111 1111 1111 1111")]
+    public void ValidateCard_ValidNumber_ReturnsTrue(string cardNumber)
     {
         var service = new CreditCardService();
 
         bool result = service.ValidateCard(cardNumber);
 
-        Assert.Equal(expected, result);
+        Assert.True(result);
+    }
+
+    [Theory]
+    [InlineData("4111 1111 1111 1112")]
+    [InlineData("4111-1111-1111-1110")]
+    [InlineData("4111111111111112")]
+    public void ValidateCard_InvalidNumber_ThrowsCardNumberInvalidException(string cardNumber)
+    {
+        var service = new CreditCardService();
+
+        var exception = Assert.Throws<CardNumberInvalidException>(() => service.ValidateCard(cardNumber));
+
+        Assert.Equal("Card number is invalid.", exception.Message);
     }
     [Fact]
     public void GetCardType_Visa_ReturnsVisa()
@@ -99,57 +120,13 @@ public class CreditCardServiceTest
     }
 
     [Fact]
-    public void GetCardType_Discover_ReturnsDiscover()
+    public void GetCardType_InvalidNumber_ThrowsWithExpectedMessage()
     {
         var service = new CreditCardService();
-        string cardNumber = "6011000990139424";
+        string cardNumber = "3528869865563675";
 
-        string type = service.GetCardType(cardNumber);
+        var exception = Assert.Throws<CardNumberInvalidException>(() => service.GetCardType(cardNumber));
 
-        Assert.Equal("Discover", type);
-    }
-
-    [Fact]
-    public void GetCardType_JCB_ReturnsJCB()
-    {
-        var service = new CreditCardService();
-        string cardNumber = "3528000000000000";
-
-        string type = service.GetCardType(cardNumber);
-
-        Assert.Equal("JCB", type);
-    }
-
-    [Fact]
-    public void GetCardType_DinersClub_ReturnsDinersClub()
-    {
-        var service = new CreditCardService();
-        string cardNumber = "30000000000000";
-
-        string type = service.GetCardType(cardNumber);
-
-        Assert.Equal("Diners Club", type);
-    }
-
-    [Fact]
-    public void GetCardType_Maestro_ReturnsMaestro()
-    {
-        var service = new CreditCardService();
-        string cardNumber = "6759649826438453";
-
-        string type = service.GetCardType(cardNumber);
-
-        Assert.Equal("Maestro", type);
-    }
-
-    [Fact]
-    public void GetCardType_UnknownCardType_ReturnsUnknown()
-    {
-        var service = new CreditCardService();
-        string cardNumber = "1234567890123456";
-
-        string type = service.GetCardType(cardNumber);
-
-        Assert.Equal("Unknown", type);
+        Assert.Equal("Card number is invalid.", exception.Message);
     }
 }
