@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using EShop.Domain.Exceptions;
 using EShop.Application;
+using EShop.Application.Interfaces;
 
 namespace EShopService.Controllers;
 
@@ -8,14 +9,19 @@ namespace EShopService.Controllers;
 [Route("api/[controller]")]
 public class CreditCardController : ControllerBase
 {
+    private readonly ICreditCardService _creditCardService;
+
+    public CreditCardController(ICreditCardService creditCardService)
+    {
+        _creditCardService = creditCardService;
+    }
+
     [HttpGet("validate")]
     public IActionResult Validate(string cardNumber)
     {
-        var service = new CreditCardService();
-
         try
         {
-            bool isValidLength = service.ValidateLength(cardNumber);
+            bool isValidLength = _creditCardService.ValidateLength(cardNumber);
             if (!isValidLength)
             {
                 return BadRequest("Card number is invalid.");
@@ -30,7 +36,7 @@ public class CreditCardController : ControllerBase
             return BadRequest(ex.Message);
         }
 
-        if (!service.ValidateCard(cardNumber))
+        if (!_creditCardService.ValidateCard(cardNumber))
         {
             return BadRequest("Card number is invalid.");
         }
@@ -38,11 +44,15 @@ public class CreditCardController : ControllerBase
         string issuer;
         try
         {
-            issuer = service.GetCardType(cardNumber);
+            issuer = _creditCardService.GetCardType(cardNumber);
         }
         catch (CardNumberInvalidException ex)
         {
             return StatusCode(406, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error.", error = ex.Message });
         }
 
         return Ok(new { status = "valid", issuer });

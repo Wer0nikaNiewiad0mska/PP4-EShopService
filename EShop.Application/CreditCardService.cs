@@ -1,9 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using EShop.Application.Interfaces;
 using EShop.Domain.Exceptions;
 
 namespace EShop.Application;
 
-public class CreditCardService
+public class CreditCardService : ICreditCardService
 {
     public bool ValidateLength(string cardNumber)
     {
