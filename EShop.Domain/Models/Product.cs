@@ -5,7 +5,7 @@ namespace EShop.Domain.Models;
 public class Product:BaseModel
 {
     public int id { get; set; }
-    public string name { get; set; } = default!;
+    public string Name { get; set; } = default!;
     public string ean { get; set; }
     public decimal price { get; set; }
     public int stock { get; set; }

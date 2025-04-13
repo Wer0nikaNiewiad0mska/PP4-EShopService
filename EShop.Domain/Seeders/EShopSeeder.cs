@@ -16,9 +16,9 @@ namespace EShop.Domain.Seeders
             {
                 var categories = new List<Category>
                 {
-                    new Category { name = "Electronics", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() },
-                    new Category { name = "Books", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() },
-                    new Category { name = "Fashion", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() }
+                    new Category { Name = "Electronics", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() },
+                    new Category { Name = "Books", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() },
+                    new Category { Name = "Fashion", created_by = Guid.NewGuid(), updated_by = Guid.NewGuid() }
                 };
 
                 context.Categories.AddRange(categories);
@@ -27,15 +27,15 @@ namespace EShop.Domain.Seeders
 
             if (!context.Products.Any())
             {
-                var electronics = context.Categories.FirstOrDefault(c => c.name == "Electronics");
-                var books = context.Categories.FirstOrDefault(c => c.name == "Books");
-                var fashion = context.Categories.FirstOrDefault(c => c.name == "Fashion");
+                var electronics = context.Categories.FirstOrDefault(c => c.Name == "Electronics");
+                var books = context.Categories.FirstOrDefault(c => c.Name == "Books");
+                var fashion = context.Categories.FirstOrDefault(c => c.Name == "Fashion");
 
                 var products = new List<Product>
                 {
                     new Product
                     {
-                        name = "Smartphone XYZ",
+                        Name = "Smartphone XYZ",
                         ean = "1234567890123",
                         price = 1999.99m,
                         stock = 15,
@@ -46,7 +46,7 @@ namespace EShop.Domain.Seeders
                     },
                     new Product
                     {
-                        name = "„C# Programming” Book",
+                        Name = "„C# Programming” Book",
                         ean = "9876543210987",
                         price = 79.90m,
                         stock = 50,
@@ -57,7 +57,7 @@ namespace EShop.Domain.Seeders
                     },
                     new Product
                     {
-                        name = "Casual T-Shirt",
+                        Name = "Casual T-Shirt",
                         ean = "5556667778881",
                         price = 49.99m,
                         stock = 120,

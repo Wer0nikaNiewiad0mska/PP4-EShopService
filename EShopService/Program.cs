@@ -33,10 +33,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
-
 using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<IEShopSeeder>();
     await seeder.Seed();
 }
+
+app.Run();

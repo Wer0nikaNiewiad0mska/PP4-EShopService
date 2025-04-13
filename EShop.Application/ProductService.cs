@@ -20,7 +20,7 @@ public class ProductService : IProductService
 
     public IEnumerable<Product> GetAll() => _productRepository.GetAll();
 
-    public Product? GetById(int id) => _productRepository.GetById(id);
+    public Product? GetById(int id) => _productRepository.GetById(id); 
 
     public void Add(Product product) => _productRepository.Add(product);
 

@@ -3,7 +3,6 @@ using EShop.Domain.Models;
 using EShop.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-//popraw tu test, bo usesqlserver ci nadpisuje i dlatego inmemory nie działa, więc lekka kraksa
 
 namespace EShop.Application.Tests;
 
@@ -28,10 +27,10 @@ public class ProductServiceTests
         var repo = new ProductRepository(context);
         var service = new ProductService(repo);
 
-        var category = new Category { name = "TestCategory" };
+        var category = new Category { Name = "TestCategory" };
         var product = new Product
         {
-            name = "Test Product",
+            Name = "Test Product",
             ean = "123456789",
             price = 99.99m,
             stock = 10,
@@ -47,7 +46,7 @@ public class ProductServiceTests
 
         // Assert
         Assert.Single(all);
-        Assert.Equal("Test Product", all.First().name);
+        Assert.Equal("Test Product", all.First().Name);
     }
 
     [Fact]
@@ -59,12 +58,12 @@ public class ProductServiceTests
 
         var product = new Product
         {
-            name = "Test",
+            Name = "Test",
             ean = "123",
             price = 10,
             stock = 1,
             sku = "SKU-123",
-            category = new Category { name = "Books" },
+            category = new Category { Name = "Books" },
             created_by = Guid.NewGuid(),
             updated_by = Guid.NewGuid()
         };
@@ -73,7 +72,7 @@ public class ProductServiceTests
         var result = service.GetById(product.id);
 
         Assert.NotNull(result);
-        Assert.Equal("Test", result!.name);
+        Assert.Equal("Test", result!.Name);
     }
 
     [Fact]
@@ -85,23 +84,23 @@ public class ProductServiceTests
 
         var product = new Product
         {
-            name = "Original",
+            Name = "Original",
             ean = "321",
             price = 10,
             stock = 5,
             sku = "SKU-321",
-            category = new Category { name = "Electronics" },
+            category = new Category { Name = "Electronics" },
             created_by = Guid.NewGuid(),
             updated_by = Guid.NewGuid()
         };
 
         service.Add(product);
 
-        product.name = "Updated";
+        product.Name = "Updated";
         service.Update(product);
 
         var updated = service.GetById(product.id);
-        Assert.Equal("Updated", updated!.name);
+        Assert.Equal("Updated", updated!.Name);
     }
 
     [Fact]
@@ -113,12 +112,12 @@ public class ProductServiceTests
 
         var product = new Product
         {
-            name = "ToDelete",
+            Name = "ToDelete",
             ean = "000",
             price = 5,
             stock = 3,
             sku = "SKU-DEL",
-            category = new Category { name = "Fashion" },
+            category = new Category { Name = "Fashion" },
             created_by = Guid.NewGuid(),
             updated_by = Guid.NewGuid()
         };
@@ -137,11 +136,11 @@ public class ProductServiceTests
         var repo = new ProductRepository(context);
         var service = new ProductService(repo);
 
-        var category = new Category { name = "Books" };
+        var category = new Category { Name = "Books" };
 
         service.Add(new Product
         {
-            name = "Book 1",
+            Name = "Book 1",
             ean = "111",
             price = 15,
             stock = 20,
@@ -153,18 +152,18 @@ public class ProductServiceTests
 
         service.Add(new Product
         {
-            name = "Other",
+            Name = "Other",
             ean = "222",
             price = 10,
             stock = 5,
             sku = "ELEC-001",
-            category = new Category { name = "Electronics" },
+            category = new Category { Name = "Electronics" },
             created_by = Guid.NewGuid(),
             updated_by = Guid.NewGuid()
         });
 
         var books = service.GetByCategory("Books").ToList();
         Assert.Single(books);
-        Assert.Equal("Book 1", books[0].name);
+        Assert.Equal("Book 1", books[0].Name);
     }
 }

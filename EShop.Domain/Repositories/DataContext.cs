@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EShop.Domain.Models;
+using Microsoft.Extensions.Options;
 
 
 namespace EShop.Domain.Repositories
@@ -13,7 +14,10 @@ namespace EShop.Domain.Repositories
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=EShopDb;Trusted_Connection=True;");
+            if (!options.IsConfigured) 
+            {
+                options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=EShopDb;Trusted_Connection=True;");
+            }
         }
     }
 }
