@@ -51,7 +51,7 @@ public class ProductRepository : IProductRepository
     public IEnumerable<Product> GetByCategory(string categoryName)
     {
         return _context.Products
-            .Where(p => p.category.name == categoryName)
+            .Where(p => p.category.Name == categoryName)
             .ToList();
     }
 

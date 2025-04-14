@@ -26,6 +26,11 @@ public class CreditCardController : ControllerBase
             {
                 return BadRequest("Card number is invalid.");
             }
+
+            _creditCardService.ValidateCard(cardNumber);
+
+            string issuer = _creditCardService.GetCardType(cardNumber);
+            return Ok(new { status = "valid", issuer });
         }
         catch (CardNumberTooLongException ex)
         {
@@ -35,17 +40,6 @@ public class CreditCardController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-
-        if (!_creditCardService.ValidateCard(cardNumber))
-        {
-            return BadRequest("Card number is invalid.");
-        }
-
-        string issuer;
-        try
-        {
-            issuer = _creditCardService.GetCardType(cardNumber);
-        }
         catch (CardNumberInvalidException ex)
         {
             return StatusCode(406, ex.Message);
@@ -54,7 +48,5 @@ public class CreditCardController : ControllerBase
         {
             return StatusCode(500, new { message = "Internal server error.", error = ex.Message });
         }
-
-        return Ok(new { status = "valid", issuer });
     }
 }
