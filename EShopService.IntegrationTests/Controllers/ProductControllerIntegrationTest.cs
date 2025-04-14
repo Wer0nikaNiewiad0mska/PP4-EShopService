@@ -8,7 +8,7 @@ using EShop.Domain.Models;
 
 namespace EShopService.Integration.Tests.Controllers;
 
-public class ProductControllerIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
+public class ProductControllerIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> _factory;
@@ -23,27 +23,34 @@ public class ProductControllerIntegrationTest : IClassFixture<WebApplicationFact
                     .SingleOrDefault(service => service.ServiceType == typeof(DbContextOptions<DataContext>));
 
                 if (dbContextDescriptor != null)
-                {
                     services.Remove(dbContextDescriptor);
-                }
 
-                services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("MyDBForTest"));
+                services.AddDbContext<DataContext>(options =>
+                    options.UseInMemoryDatabase("MyDBForTest"));
             });
         });
 
         _client = _factory.CreateClient();
     }
 
+    // Reset bazy danych przed każdym testem
+    public async Task InitializeAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+        await dbContext.Database.EnsureDeletedAsync();
+        await dbContext.Database.EnsureCreatedAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     [Fact]
     public async Task Get_ReturnsAllProducts()
     {
+        // Arrange – seed danych testowych
         using (var scope = _factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-            dbContext.Products.RemoveRange(dbContext.Products);
-            dbContext.Categories.RemoveRange(dbContext.Categories);
-            await dbContext.SaveChangesAsync();
 
             var category = new Category
             {
@@ -51,10 +58,12 @@ public class ProductControllerIntegrationTest : IClassFixture<WebApplicationFact
                 created_by = Guid.NewGuid(),
                 updated_by = Guid.NewGuid()
             };
-            dbContext.Categories.Add(category);
+
+            await dbContext.Categories.AddAsync(category);
             await dbContext.SaveChangesAsync();
 
-            dbContext.Products.AddRange(
+            var products = new List<Product>
+            {
                 new Product
                 {
                     Name = "Product1",
@@ -77,14 +86,22 @@ public class ProductControllerIntegrationTest : IClassFixture<WebApplicationFact
                     created_by = Guid.NewGuid(),
                     updated_by = Guid.NewGuid()
                 }
-            );
+            };
+
+            await dbContext.Products.AddRangeAsync(products);
             await dbContext.SaveChangesAsync();
         }
 
+        // Act
         var response = await _client.GetAsync("/api/product");
 
+        // Assert
         response.EnsureSuccessStatusCode();
-        var products = await response.Content.ReadFromJsonAsync<List<Product>>();
-        Assert.Equal(2, products?.Count);
+        var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
+
+        Assert.NotNull(productsFromApi);
+        Assert.Equal(2, productsFromApi!.Count);
+        Assert.Contains(productsFromApi, p => p.Name == "Product1");
+        Assert.Contains(productsFromApi, p => p.sku == "SKU-002");
     }
 }

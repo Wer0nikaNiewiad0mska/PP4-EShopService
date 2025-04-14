@@ -1,4 +1,5 @@
 ﻿using EShop.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,52 +17,57 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public IEnumerable<Product> GetAll()
+    public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        return _context.Products.ToList();
+        return await _context.Products
+            .Include(p => p.category)
+            .ToListAsync();
     }
 
-    public Product? GetById(int id)
+    public async Task<Product?> GetByIdAsync(int id)
     {
-        return _context.Products.Find(id);
+        return await _context.Products
+            .Include(p => p.category)
+            .FirstOrDefaultAsync(p => p.id == id);
     }
 
-    public void Add(Product product)
+    public async Task AddAsync(Product product)
     {
-        _context.Products.Add(product);
-        _context.SaveChanges();
+        await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
     }
 
-    public void Update(Product product)
+    public async Task UpdateAsync(Product product)
     {
         _context.Products.Update(product);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void Delete(int id)
+    public async Task DeleteAsync(int id)
     {
-        var product = GetById(id);
+        var product = await GetByIdAsync(id);
         if (product != null)
         {
             _context.Products.Remove(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 
-    public IEnumerable<Product> GetByCategory(string categoryName)
+    public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName)
     {
-        return _context.Products
+        return await _context.Products
+            .Include(p => p.category)
             .Where(p => p.category.Name == categoryName)
-            .ToList();
+            .ToListAsync();
     }
 
-    public bool Exists(int id)
+    public async Task<bool> ExistsAsync(int id)
     {
-        return _context.Products.Any(p => p.id == id);
+        return await _context.Products.AnyAsync(p => p.id == id);
     }
 
-    public int Count()
+    public async Task<int> CountAsync()
     {
-        return _context.Products.Count();
+        return await _context.Products.CountAsync();
     }
 }

@@ -9,6 +9,6 @@ namespace EShop.Domain.Exceptions;
 public class CardNumberInvalidException: Exception
 {
     public CardNumberInvalidException() { }
-    public CardNumberInvalidException(string massage) : base("Card number is invalid.") { }
+    public CardNumberInvalidException(string message) : base("Card number is invalid.") { }
     public CardNumberInvalidException(Exception innerException) : base("Card number is invalid.", innerException) { }
 }

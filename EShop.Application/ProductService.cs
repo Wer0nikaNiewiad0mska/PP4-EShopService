@@ -18,20 +18,27 @@ public class ProductService : IProductService
         _productRepository = productRepository;
     }
 
-    public IEnumerable<Product> GetAll() => _productRepository.GetAll();
+    public async Task<IEnumerable<Product>> GetAllAsync()
+        => await _productRepository.GetAllAsync();
 
-    public Product? GetById(int id) => _productRepository.GetById(id); 
+    public async Task<Product?> GetByIdAsync(int id)
+        => await _productRepository.GetByIdAsync(id);
 
-    public void Add(Product product) => _productRepository.Add(product);
+    public async Task AddAsync(Product product)
+        => await _productRepository.AddAsync(product);
 
-    public void Update(Product product) => _productRepository.Update(product);
+    public async Task UpdateAsync(Product product)
+        => await _productRepository.UpdateAsync(product);
 
-    public void Delete(int id) => _productRepository.Delete(id);
+    public async Task DeleteAsync(int id)
+        => await _productRepository.DeleteAsync(id);
 
-    public IEnumerable<Product> GetByCategory(string categoryName)
-        => _productRepository.GetByCategory(categoryName);
+    public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName)
+        => await _productRepository.GetByCategoryAsync(categoryName);
 
-    public bool Exists(int id) => _productRepository.Exists(id);
+    public async Task<bool> ExistsAsync(int id)
+        => await _productRepository.ExistsAsync(id);
 
-    public int Count() => _productRepository.Count();
+    public async Task<int> CountAsync()
+        => await _productRepository.CountAsync();
 }

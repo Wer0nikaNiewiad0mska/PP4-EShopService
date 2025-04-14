@@ -16,48 +16,48 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Product>> Get()
+    public async Task<ActionResult<IEnumerable<Product>>> Get()
     {
-        var products = _productService.GetAll();
+        var products = await _productService.GetAllAsync();
         return Ok(products);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Product> Get(int id)
+    public async Task<ActionResult<Product>> Get(int id)
     {
-        var product = _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
         if (product == null)
             return NotFound();
         return Ok(product);
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] Product product)
+    public async Task<IActionResult> Post([FromBody] Product product)
     {
-        _productService.Add(product);
+        await _productService.AddAsync(product);
         return CreatedAtAction(nameof(Get), new { id = product.id }, product);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, [FromBody] Product updatedProduct)
+    public async Task<IActionResult> Put(int id, [FromBody] Product updatedProduct)
     {
-        var existing = _productService.GetById(id);
+        var existing = await _productService.GetByIdAsync(id);
         if (existing == null)
             return NotFound();
 
-        updatedProduct.id = id; 
-        _productService.Update(updatedProduct);
+        updatedProduct.id = id;
+        await _productService.UpdateAsync(updatedProduct);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var product = _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
         if (product == null)
             return NotFound();
 
-        _productService.Delete(id);
+        await _productService.DeleteAsync(id);
         return NoContent();
     }
 }

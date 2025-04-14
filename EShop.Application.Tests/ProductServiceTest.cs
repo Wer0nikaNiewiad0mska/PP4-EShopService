@@ -20,7 +20,7 @@ public class ProductServiceTests
     }
 
     [Fact]
-    public void AddProduct_ShouldAddProduct()
+    public async Task AddProduct_ShouldAddProduct()
     {
         // Arrange
         var context = GetInMemoryContext();
@@ -41,8 +41,8 @@ public class ProductServiceTests
         };
 
         // Act
-        service.Add(product);
-        var all = service.GetAll();
+        await service.AddAsync(product);
+        var all = await service.GetAllAsync();
 
         // Assert
         Assert.Single(all);
@@ -50,7 +50,7 @@ public class ProductServiceTests
     }
 
     [Fact]
-    public void GetById_ShouldReturnCorrectProduct()
+    public async Task GetById_ShouldReturnCorrectProduct()
     {
         var context = GetInMemoryContext();
         var repo = new ProductRepository(context);
@@ -68,15 +68,15 @@ public class ProductServiceTests
             updated_by = Guid.NewGuid()
         };
 
-        service.Add(product);
-        var result = service.GetById(product.id);
+        await service.AddAsync(product);
+        var result = await service.GetByIdAsync(product.id);
 
         Assert.NotNull(result);
         Assert.Equal("Test", result!.Name);
     }
 
     [Fact]
-    public void UpdateProduct_ShouldChangeProductValues()
+    public async Task UpdateProduct_ShouldChangeProductValues()
     {
         var context = GetInMemoryContext();
         var repo = new ProductRepository(context);
@@ -94,17 +94,17 @@ public class ProductServiceTests
             updated_by = Guid.NewGuid()
         };
 
-        service.Add(product);
+        await service.AddAsync(product);
 
         product.Name = "Updated";
-        service.Update(product);
+        await service.UpdateAsync(product);
 
-        var updated = service.GetById(product.id);
+        var updated = await service.GetByIdAsync(product.id);
         Assert.Equal("Updated", updated!.Name);
     }
 
     [Fact]
-    public void DeleteProduct_ShouldRemoveProduct()
+    public async Task DeleteProduct_ShouldRemoveProduct()
     {
         var context = GetInMemoryContext();
         var repo = new ProductRepository(context);
@@ -122,15 +122,15 @@ public class ProductServiceTests
             updated_by = Guid.NewGuid()
         };
 
-        service.Add(product);
-        service.Delete(product.id);
+        await service.AddAsync(product);
+        await service.DeleteAsync(product.id);
 
-        var result = service.GetById(product.id);
+        var result = await service.GetByIdAsync(product.id);
         Assert.Null(result);
     }
 
     [Fact]
-    public void GetByCategory_ShouldReturnFilteredProducts()
+    public async Task GetByCategory_ShouldReturnFilteredProducts()
     {
         var context = GetInMemoryContext();
         var repo = new ProductRepository(context);
@@ -138,7 +138,7 @@ public class ProductServiceTests
 
         var category = new Category { Name = "Books" };
 
-        service.Add(new Product
+        await service.AddAsync(new Product
         {
             Name = "Book 1",
             ean = "111",
@@ -150,7 +150,7 @@ public class ProductServiceTests
             updated_by = Guid.NewGuid()
         });
 
-        service.Add(new Product
+        await service.AddAsync(new Product
         {
             Name = "Other",
             ean = "222",
@@ -162,7 +162,7 @@ public class ProductServiceTests
             updated_by = Guid.NewGuid()
         });
 
-        var books = service.GetByCategory("Books").ToList();
+        var books = (await service.GetByCategoryAsync("Books")).ToList();
         Assert.Single(books);
         Assert.Equal("Book 1", books[0].Name);
     }
